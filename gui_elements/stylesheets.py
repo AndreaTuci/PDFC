@@ -42,4 +42,11 @@ drop_label = """
                 font-size: 16px;
                 text-align: center;
             """
+
+message_label = """
+                    color: rgba(11,10,9,100%);
+                    background-color: rgba(255,255,255,0%);
+                    font-size: 12px;
+                    text-align: left;
+                """
 # color: rgba(11, 10, 9, 100%); rich black

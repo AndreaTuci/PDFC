@@ -55,7 +55,5 @@ for file in file_list:
 if __name__ == '__main__':
     app = gui.QApplication(sys.argv)
     application = gui.PDFCApp()
-    # ui = gui.MainWidget()
-    # ui.show()
     sys.exit(app.exec_())
 

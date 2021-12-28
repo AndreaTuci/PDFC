@@ -1,12 +1,63 @@
+import os
+import sys
+from win32com import client
 
-
-def check_if_excel_file(file_list):
-    print(file_list)
-    approved_list = []
-    rejected_list = []
-    for file in file_list:
+def check_if_excel_file(self):
+    for file in self.file_list:
         if file.endswith(('.xlsx', '.xls', '.ods')):
-            approved_list.append(file)
+            self.approved_files.append(file)
         else:
-            rejected_list.append(file)
-    return approved_list, rejected_list
+            self.rejected_files.append(file)
+
+    update_lbl_messages(self)
+
+
+def update_lbl_messages(self):
+    print(f'Prima {self.rejected_files}')
+    rejected = ''
+    for file in self.rejected_files[0:3]:
+        (_, tail) = os.path.split(file)
+        rejected += f'\n{tail}'
+    if len(self.rejected_files) > 3:
+        rejected += '\n[...]'
+    message = f'File approvati: {len(self.approved_files)}\nFile rifiutati: {len(self.rejected_files)}\n\n' \
+              f'{f"Rifiutati:{rejected}" if rejected else ""}'
+    self.lbl_messages.setText(message)
+
+
+def convert_files(self):
+    excel = client.Dispatch("Excel.Application")
+    main_dir = os.path.dirname(os.path.realpath('__file__'))
+    self.lbl_messages.setText('')
+    for file in self.approved_files:
+        try:
+            excel_file_path = os.path.join(main_dir, file)
+
+            if file.endswith('.xlsx'):
+                new_dir = file[:-5]
+            else:
+                new_dir = file[:-4]
+
+            new_dir = os.path.join(main_dir, new_dir)
+            os.makedirs(new_dir)
+
+            sheets = excel.Workbooks.Open(excel_file_path)
+
+            i = 0
+
+            while i < len(sheets.Worksheets):
+                try:
+                    work_sheet = sheets.Worksheets[i]
+                    title = work_sheet.Name.replace(" ", "_")
+                    pdf_file_path = os.path.join(new_dir, f'{title}.pdf')
+                    work_sheet.ExportAsFixedFormat(0, pdf_file_path)
+                except:
+                    print(f'File {file}\nErrore per il foglio n.{i}\n\n')
+                i += 1
+
+            sheets.Close(True)
+
+            urlLink = "<a href=\"http://www.google.com\">'Click this link to go to Google'</a>"
+            self.lbl_messages.setText(urlLink)
+        except:
+            print(f'Imppossibile convertire il file {file}\n\n')
