@@ -8,19 +8,32 @@ main_window_style = """
                     """
 
 btn_style = """
-                    color: rgba(135,122,110,100%);
-                    background-color: rgba(255,255,255,0%);
+                    color: rgba(51,51,51,100%);
+                    background-color: rgba(51,51,51,0%);
                     font-size: 18px;
                     text-align: center;
-                    border-width: 1px;
-                    border-style: solid;
-                    border-color: rgba(135,122,110,100%);
+                    border: 2px solid rgba(51,51,51,100%);
+                    padding: 10px;
+                    border-radius: 10px;
+                    font-weight: 900;
+                    padding: 0px;
+                """
+
+btn_style_hover = """
+                    color: white;
+                    background-color: rgba(51,51,51,100%);
+                    font-size: 18px;
+                    text-align: center;
+                    border: 2px solid white;
+                    padding: 10px;
+                    border-radius: 10px;
+                    font-weight: 900;
                     padding: 0px;
                 """
 
 
 exit_btn_style = """
-                    color: rgba(135,122,110,100%);
+                    color: rgba(51,51,51,100%);
                     background-color: rgba(255,255,255,0%);
                     font-weight: 900;
                     font-size: 20px;
@@ -33,11 +46,12 @@ banner = """
             background-color: rgba(166,30,30,100%);
             font-size: 14px;
             text-align: center;
+            padding: 5px;
         """
 
 drop_label = """
                 color: rgba(11,10,9,100%);
-                background-color: rgba(135,122,110,30%);
+                background-color: rgba(51,51,51,30%);
                 border: 3px dashed black;
                 font-size: 16px;
                 text-align: center;
