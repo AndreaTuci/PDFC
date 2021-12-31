@@ -1,5 +1,12 @@
 import os
+import shutil
+
 from win32com import client
+
+from locale import choose_locale
+
+lang = choose_locale()
+
 
 def check_if_excel_file(self):
     for file in self.file_list:
@@ -12,15 +19,13 @@ def check_if_excel_file(self):
 
 
 def update_lbl_messages(self):
-    print(f'Prima {self.rejected_files}')
     rejected = ''
-    for file in self.rejected_files[0:3]:
+    for file in self.rejected_files:
         (_, tail) = os.path.split(file)
         rejected += f'\n{tail}'
-    if len(self.rejected_files) > 3:
-        rejected += '\n[...]'
-    message = f'File approvati: {len(self.approved_files)}\nFile rifiutati: {len(self.rejected_files)}\n\n' \
-              f'{f"Rifiutati:{rejected}" if rejected else ""}'
+
+    message = f'{lang.files_approved}: {len(self.approved_files)}\n{lang.files_rejected}: {len(self.rejected_files)}\n\n' \
+              f'{f"{lang.rejected}:{rejected}" if rejected else ""}'
     self.lbl_messages.setText(message)
 
 
@@ -28,7 +33,7 @@ def convert_files(self):
     total_sheets = 0
     main_dir = os.path.dirname(os.path.realpath('__file__'))
     sheets_done = 0
-    links = []
+    links = ['<h4 style=\"text-transform: uppercase;\">Ecco i PDF:</h4>']
     for file in self.approved_files:
         try:
             excel = client.Dispatch("Excel.Application")
@@ -51,7 +56,12 @@ def convert_files(self):
                 new_dir = file[:-4]
 
             new_dir = os.path.join(main_dir, new_dir)
-            os.makedirs(new_dir)
+            while True:
+                try:
+                    os.makedirs(new_dir)
+                    break
+                except:
+                    shutil.rmtree(new_dir)
 
             sheets = excel.Workbooks.Open(excel_file_path)
 
@@ -68,15 +78,19 @@ def convert_files(self):
                     print(f'File {file}\nErrore per il foglio n.{i}: {e}\n\n')
                 i += 1
                 sheets_done += 1
-                self.calc.countChanged.emit(sheets_done)
+                self.ext_thred.progress_changed.emit(sheets_done)
 
             sheets.Close(True)
-
-            links.append("<a href=\"http://www.google.com\">'Click this link to go to Google'</a>")
+            # \"http://www.google.com\"
+            (_, dir_name) = os.path.split(new_dir)
+            links.append(f"<a "
+                         f"style=\"text-transform: uppercase; text-decoration: none\""
+                         f"href={new_dir}>"
+                         f"{dir_name}</a><br>")
             # self.lbl_messages.setText(urlLink)
-        except:
-            print(f'Impossibile convertire il file {file}\n\n')
+
+        except Exception as e:
+            print(f'Impossibile convertire il file {file}: {e}\n\n')
         finally:
             excel.quit()
-
     return links

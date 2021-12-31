@@ -1,43 +1,84 @@
 from PyQt5.QtGui import QPixmap, QCursor, QMovie
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QProgressBar
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QPushButton, QLabel, QProgressBar, QScrollArea
+from PyQt5.QtCore import Qt
 import PyQt5.QtCore as Core
 from PyQt5.QtWidgets import QVBoxLayout, QDesktopWidget, QGraphicsDropShadowEffect
 from gui_elements import stylesheets
 from file_manager import *
 import pythoncom
+from locale import *
+
+
+lang = choose_locale()
 
 
 ''' Classe per definire il formato della finestra '''
 
-class External(Core.QThread):
+
+class ScrollLabel(QScrollArea):
+
+    # constructor
+    def __init__(self, *args, **kwargs):
+        QScrollArea.__init__(self, *args, **kwargs)
+
+        # making widget resizable
+        self.setWidgetResizable(True)
+
+        # making qwidget object
+        content = QWidget(self)
+        self.setWidget(content)
+
+        # vertical box layout
+        lay = QVBoxLayout(content)
+
+        # creating label
+        self.label = QLabel(content)
+
+        # setting alignment to the text
+        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        # making label multi-line
+        self.label.setWordWrap(True)
+
+        # adding label to the layout
+        lay.addWidget(self.label)
+        self.label.setOpenExternalLinks(True)
+
+    # the setText method
+    def setText(self, text):
+        # setting text to the label
+        self.label.setText(text)
+
+class ProcessFilesThread(Core.QThread):
 
     def __init__(self, app):
         super().__init__()
         self.app = app
 
-
-    countChanged = Core.pyqtSignal(int)
+    progress_changed = Core.pyqtSignal(int)
+    update_parent_msg = Core.pyqtSignal(str)
 
     def run(self):
         check_if_excel_file(self.app)
+        url_link = lang.url_link
+        if self.app.approved_files:
+            try:
+                pythoncom.CoInitialize()
+                links = convert_files(self.app)
+                url_link = ''
+                for link in links:
+                    url_link += link
+            except Exception as e:
+                print(e)
         try:
-            pythoncom.CoInitialize()
-
-            links = convert_files(self.app)
-            urlLink = ''
-            for link in links:
-                urlLink += link
-            # self.app.lbl_messages.setText(urlLink)
+            self.update_parent_msg.emit(url_link)
         except Exception as e:
             print(e)
-
 
 
 class RoundedWindowWithImg(QLabel):
     def __init__(self, parent):
         QLabel.__init__(self, parent)
-
         self.setStyleSheet(stylesheets.main_window_style)
 
 
@@ -50,28 +91,31 @@ class PDFCApp(QWidget):
         super().__init__()
         self.setAcceptDrops(True)
         self.title = 'PDFC'
-        self.left = 300
-        self.top = 300
-        self.width = 800
-        self.height = 450
+        self.left = 200
+        self.top = 200
+        self.width = 300
+        self.height = 648
         self.file_excel = ''
         self.file_list = []
         self.approved_files = []
         self.rejected_files = []
         self.oldPos = ''
-        self.movie = QMovie("img/loading.gif")
         self.init_ui()
 
-    def onButtonClick(self):
-        return
+    def update_results_lbl(self, links):
+        self.lbl_results.setText(links)
+        # self.lbl_results.adjustSize()
 
-    def onCountChanged(self, value):
+    def on_progress_changed(self, value):
         self.progress.setValue(value)
 
+    def reset_process_values(self):
+        self.lbl_messages.setText("")
+        self.lbl_results.setText("")
+        self.approved_files = []
+        self.rejected_files = []
+
     def init_ui(self):
-
-
-        # self.startAnimation()
 
         ##### Impostazioni base
 
@@ -90,7 +134,6 @@ class PDFCApp(QWidget):
         shadow = QGraphicsDropShadowEffect()
         shadow.setOffset(4, 4)
         self.setGraphicsEffect(shadow)
-
         ##### Accetta i drop ###########
         self.setAcceptDrops(True)
 
@@ -100,29 +143,32 @@ class PDFCApp(QWidget):
 
         ##### Elementi funzionali ######
 
-        self.progress = QProgressBar(self)
-        self.progress.setGeometry(50, 170, 253, 25)
-        self.progress.setMaximum(100)
-
         lbl_header = QLabel(self)
         header_img = QPixmap('img/header_s.png')
         # if 'libpng warning: iCCP: CRC error' remove png color profile
         lbl_header.setPixmap(header_img)
-        lbl_header.setGeometry(50, 50, 112, 43)
+        lbl_header.move(40, 50)
         lbl_header.setStyleSheet("""
                     border-radius: 10px;
                     """)
         lbl_header.adjustSize()
 
-        self.btn_get_files = QPushButton('+', self)
-        self.btn_get_files.move(324, 68)
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(40, 170, 253, 25)
+        self.progress.setMaximum(100)
+        # self.progress.setAlignment(Qt.AlignCenter)
+        self.progress.setFormat("")
+        self.progress.hide()
+
+        self.btn_get_files = QPushButton(lang.load_files, self)
+        self.btn_get_files.move((self.width/2)-70, 75)
         self.btn_get_files.setStyleSheet(stylesheets.btn_style)
-        self.btn_get_files.resize(50, 50)
+        self.btn_get_files.adjustSize()
         self.btn_get_files.clicked.connect(self.get_files)
         self.btn_get_files.installEventFilter(self)
 
         self.btn_exit = QPushButton('X', self)
-        self.btn_exit.move(760, 20)
+        self.btn_exit.move(self.width-40, 20)
         self.btn_exit.setStyleSheet(stylesheets.exit_btn_style)
         self.btn_exit.clicked.connect(QApplication.instance().quit)
         self.btn_exit.installEventFilter(self)
@@ -130,24 +176,26 @@ class PDFCApp(QWidget):
 
         lbl_banner = QLabel(self)
         lbl_banner.setOpenExternalLinks(True)
-        banner_link = "<a style=\"color:white; text-decoration: none\" href=\"https://github.com/AndreaTuci/PDFC\">code on GitHub</a>"
+        banner_link = "<a style=\"color:white; text-decoration: none\" " \
+                      "href=\"https://github.com/AndreaTuci/PDFC\">" \
+                      "code on GitHub</a>"
         lbl_banner.setText(banner_link)
         lbl_banner.setAlignment(Qt.AlignCenter)
         lbl_banner.setStyleSheet(stylesheets.banner)
         lbl_banner.adjustSize()
 
-        self.lbl_loading_icon = QLabel(self)
-        self.lbl_loading_icon.move(200, 200)
-        self.lbl_loading_icon.setMovie(self.movie)
-        self.lbl_loading_icon.adjustSize()
-
-        self.lbl_messages = QLabel(self)
-        self.lbl_messages.setGeometry(53, 200, 100, 130)
+        self.lbl_messages = ScrollLabel(self)
+        self.lbl_messages.setGeometry(43, 200, 214, 150)
         self.lbl_messages.setText("")
-        self.lbl_messages.setAlignment(Qt.AlignLeft)
+        # self.lbl_messages.setAlignment(Qt.AlignLeft)
         self.lbl_messages.setStyleSheet(stylesheets.message_label)
-        self.lbl_messages.setOpenExternalLinks(True)
 
+        self.lbl_results = ScrollLabel(self)
+        self.lbl_results.setGeometry(43, 400, 214, 200)
+        self.lbl_results.setText("")
+        # self.lbl_results.setAlignment(Qt.AlignLeft)
+        self.lbl_results.setStyleSheet(stylesheets.message_label)
+        # self.lbl_results.setOpenExternalLinks(True)
         self.show()
 
 
@@ -161,10 +209,17 @@ class PDFCApp(QWidget):
 
     def dropEvent(self, event):
         self.file_list = [u.toLocalFile() for u in event.mimeData().urls()]
-        self.calc = External(app=self)
-        self.calc.countChanged.connect(self.onCountChanged)
-        self.calc.start()
+        self.start_converting_process()
 
+
+
+    def start_converting_process(self):
+        self.progress.show()
+        self.reset_process_values()
+        self.ext_thred = ProcessFilesThread(app=self)
+        self.ext_thred.progress_changed.connect(self.on_progress_changed)
+        self.ext_thred.update_parent_msg.connect(self.update_results_lbl)
+        self.ext_thred.start()
 
 
     ##### Metodi che rendono possibile spostare la finestra senza bordi #####
@@ -183,18 +238,18 @@ class PDFCApp(QWidget):
         self.move(self.x() + delta.x(), self.y() + delta.y())
         self.oldPos = event.globalPos()
 
-##########################################################################
+    ##########################################################################
 
     def eventFilter(self, obj, event):
         if obj == self.btn_get_files and event.type() == Core.QEvent.HoverEnter:
-            self.onHovered(obj)
+            self.on_hovered(obj)
         elif obj == self.btn_get_files and event.type() == Core.QEvent.Leave:
             self.leaveEvent(event)
         elif obj == self.btn_exit and event.type() == Core.QEvent.HoverEnter:
-            self.onHovered(obj)
+            self.on_hovered(obj)
         return super(PDFCApp, self).eventFilter(obj, event)
 
-    def onHovered(self, obj):
+    def on_hovered(self, obj):
         obj.setCursor(QCursor(Qt.PointingHandCursor))
         if obj == self.btn_get_files:
             self.btn_get_files.setStyleSheet(stylesheets.btn_style_hover)
@@ -202,21 +257,6 @@ class PDFCApp(QWidget):
     def leaveEvent(self, e):
         self.btn_get_files.setStyleSheet(stylesheets.btn_style)
 
-    def startAnimation(self):
-        self.movie.start()
-
-    def stopAnimation(self):
-        self.movie.stop()
-
-    @pyqtSlot()
     def get_files(self):
-        options = QFileDialog.Options()
-        self.file_list, _ = QFileDialog.getOpenFileNames(self, "Scegli i file da convertire", "", "All Files (*)", options=options)
-        check_if_excel_file(self)
-        convert_files(self)
-
-
-
-
-
-
+        self.file_list, _ = QFileDialog.getOpenFileNames(self, lang.choose_files, "", "All Files (*)")
+        self.start_converting_process()

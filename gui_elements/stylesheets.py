@@ -12,11 +12,9 @@ btn_style = """
                     background-color: rgba(51,51,51,0%);
                     font-size: 18px;
                     text-align: center;
-                    border: 2px solid rgba(51,51,51,100%);
+                    border: 1px solid rgba(51,51,51,100%);
                     padding: 10px;
-                    border-radius: 10px;
-                    font-weight: 900;
-                    padding: 0px;
+                    font-weight: 300;
                 """
 
 btn_style_hover = """
@@ -24,11 +22,9 @@ btn_style_hover = """
                     background-color: rgba(51,51,51,100%);
                     font-size: 18px;
                     text-align: center;
-                    border: 2px solid white;
+                    border: 1px solid rgba(51,51,51,100%);
                     padding: 10px;
-                    border-radius: 10px;
-                    font-weight: 900;
-                    padding: 0px;
+                    font-weight: 300;
                 """
 
 
@@ -62,5 +58,7 @@ message_label = """
                     background-color: rgba(255,255,255,0%);
                     font-size: 12px;
                     text-align: left;
+                    border: 0px dashed black;
                 """
+
 # color: rgba(11, 10, 9, 100%); rich black
