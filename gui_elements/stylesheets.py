@@ -60,5 +60,3 @@ message_label = """
                     text-align: left;
                     border: 0px dashed black;
                 """
-
-# color: rgba(11, 10, 9, 100%); rich black

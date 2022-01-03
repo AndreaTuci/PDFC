@@ -1,11 +1,8 @@
 import os
 import shutil
-
 from win32com import client
 
-from locale import choose_locale
-
-lang = choose_locale()
+from PDFC import lang
 
 
 def check_if_excel_file(self):
@@ -24,7 +21,8 @@ def update_lbl_messages(self):
         (_, tail) = os.path.split(file)
         rejected += f'\n{tail}'
 
-    message = f'{lang.files_approved}: {len(self.approved_files)}\n{lang.files_rejected}: {len(self.rejected_files)}\n\n' \
+    message = f'{lang.files_approved}: {len(self.approved_files)}\n{lang.files_rejected}: ' \
+              f'{len(self.rejected_files)}\n\n' \
               f'{f"{lang.rejected}:{rejected}" if rejected else ""}'
     self.lbl_messages.setText(message)
 
@@ -33,7 +31,7 @@ def convert_files(self):
     total_sheets = 0
     main_dir = os.path.dirname(os.path.realpath('__file__'))
     sheets_done = 0
-    links = ['<h4 style=\"text-transform: uppercase;\">Ecco i PDF:</h4>']
+    links = [f'<p style=\"text-transform: uppercase;\">{lang.view_result}:</p>']
     for file in self.approved_files:
         try:
             excel = client.Dispatch("Excel.Application")
@@ -60,7 +58,8 @@ def convert_files(self):
                 try:
                     os.makedirs(new_dir)
                     break
-                except:
+                except Exception as e:
+                    print(f'{e}\n{lang.deleting_old}')
                     shutil.rmtree(new_dir)
 
             sheets = excel.Workbooks.Open(excel_file_path)
@@ -74,14 +73,13 @@ def convert_files(self):
                     pdf_file_path = os.path.join(new_dir, f'{title}.pdf')
                     work_sheet.ExportAsFixedFormat(0, pdf_file_path)
                 except Exception as e:
-                    e = e.excepinfo[2]
-                    print(f'File {file}\nErrore per il foglio n.{i}: {e}\n\n')
+                    error = str(e.excepinfo[2])
+                    print(f'{lang.show_conversion_error(file, i, error)}')
                 i += 1
                 sheets_done += 1
                 self.ext_thred.progress_changed.emit(sheets_done)
 
             sheets.Close(True)
-            # \"http://www.google.com\"
             (_, dir_name) = os.path.split(new_dir)
             links.append(f"<a "
                          f"style=\"text-transform: uppercase; text-decoration: none\""
@@ -90,7 +88,7 @@ def convert_files(self):
             # self.lbl_messages.setText(urlLink)
 
         except Exception as e:
-            print(f'Impossibile convertire il file {file}: {e}\n\n')
+            print(f'{lang.conversion_aborted} {file}: {e}\n\n')
         finally:
             excel.quit()
     return links

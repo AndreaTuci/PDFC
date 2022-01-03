@@ -1,4 +1,7 @@
 **/documents
 **/.idea
+**/dist
+**/build
 **/__pycache__
 **/*.log
+*.spec
