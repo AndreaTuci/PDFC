@@ -24,7 +24,7 @@
     <a href="https://github.com/AndreaTuci/PDFC/issues"><strong>Request feature | Report bug »</strong></a>
     <br />
     </p>
-    <a href="https://www.linkedin.com/in/andrea-tuci-065463226/">
+    <a href="https://www.linkedin.com/in/andrea-tuci-065463226/" target="_blank">
         <img src="img/LinkedIn-blue.png" alt="LinkedIn" width="111" height="28">
     </a>
     <br />
@@ -65,6 +65,8 @@ It will save you a lot of time if you have to convert many sheets often.
 
 You can convert files by uploading them via button or simply by dragging them onto the application window, PDFC will do the rest in seconds!
 
+[Download PDFC.exe now and start converting!](https://github.com/AndreaTuci/PDFC/releases/tag/v1.0.0)
+
 <p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="installation"></div>
@@ -103,7 +105,7 @@ To view the images copy the img folder next to the executable file
 
 Launch PDFC.py or open the .exe
 
-```python
+```bash
 <your-new-venv> python PDFC.py
 ```
 
