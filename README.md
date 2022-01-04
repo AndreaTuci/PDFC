@@ -8,29 +8,26 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 <!-- PROJECT LOGO -->
 <br />
-<div style="text-align: center">
+<div style="text-align: center" align="center">
   <a href="https://github.com/AndreaTuci/PDFC">
     <img src="img/app.png" alt="Logo" width="55" height="64">
   </a>
 
   <h2 style="text-align: center">PDFC</h2>
 
-  <p style="text-align: center">
+  <p style="text-align: center" align="center">
     A smart Excel to PDF converter
     <br />
     <a href="https://github.com/AndreaTuci/PDFC/issues"><strong>Request feature | Report bug »</strong></a>
     <br />
-    <br />
     </p>
+    <a href="https://www.linkedin.com/in/andrea-tuci-065463226/">
+        <img src="img/LinkedIn-blue.png" alt="LinkedIn" width="111" height="28">
+    </a>
+    <br />
 </div>
 
 
@@ -57,56 +54,64 @@
 
 ## About The Project
 
-<hr />
 <br />
-<div style="text-align: center">
-<img style="horiz-align: center" height="442" src=".\img\screenshot.png" alt="Screenshot" width="208"/>
+<div style="text-align: center" align="center">
+<img height="442" src=".\img\screenshot.png" alt="Screenshot" width="208"/>
 </div>
 <br />
-<br />
 
-Project description
+PDFC is an office tool (**Windows only!**) that allows you to convert excel files into PDF by creating a folder for each excel file and a PDF for each sheet.
+It will save you a lot of time if you have to convert many sheets often.
 
-Here's why:
-* Reason 1
-* Reason 2
-* Reason 3
+You can convert files by uploading them via button or simply by dragging them onto the application window, PDFC will do the rest in seconds!
 
-And maybe something more to say
-
-<p style="text-align: right">(<a href="#top">back to top</a>)</p>
+<p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="installation"></div>
 
 ## Installation
 
-<hr />
+Create a virtual environment
 
 Use [pip](https://pip.pypa.io/en/stable/) to install PDFC requirements.
 
 ```bash
-pip install -r requirements.tx
+# Create an environment
+python3 -m venv your-new-venv
+
+# Activate the new venv
+your-new-venv\Scripts\activate
+
+# Install requirements from requirements.txt
+<your-new-venv> pip install -r requirements.txt
 ```
 
-<p style="text-align: right">(<a href="#top">back to top</a>)</p>
+You can also create an .exe using pyinstaller or launching build.bat while into your-new-venv:
+
+```bash
+<your-new-venv> build.bat    
+```
+
+This will create a new .exe file in the dist folder, inside the project folder. 
+To view the images copy the img folder next to the executable file
+
+<p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="usage"></div>
 
 ## Usage
 
-<hr />
+Launch PDFC.py or open the .exe
 
 ```python
-python PDFC.py
+<your-new-venv> python PDFC.py
 ```
 
-<p style="text-align: right">(<a href="#top">back to top</a>)</p>
+<p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="contributing"></div>
 
 ## Contributing
-
-<hr />
 
 Pull requests are welcome. 
 
@@ -119,17 +124,15 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p style="text-align: right">(<a href="#top">back to top</a>)</p>
+<p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="license"></div>
 
 ## License
 
-<hr />
-
 [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/)
 
-<p style="text-align: right">(<a href="#top">back to top</a>)</p>
+<p style="text-align: right" align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

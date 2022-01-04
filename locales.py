@@ -13,6 +13,7 @@ def choose_locale():
 
 class Language:
     load_files = 'LOAD FILES'
+    instructions = 'Click the button or drag and drop files here'
     url_link = 'No file was converted'
     choose_files = 'Choose files'
     files_approved = 'Approved files'
@@ -31,6 +32,7 @@ class Italiano(Language):
     def __init__(self):
         Language.__init__(self)
         self.load_files = 'CARICA FILE'
+        self.instructions = 'Clicca il pulsante o trascina i file qui'
         self.url_link = 'Nessun file convertito'
         self.choose_files = "Scegli i file da convertire"
         self.files_approved = 'File approvati'

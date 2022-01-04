@@ -152,6 +152,12 @@ class PDFCApp(QWidget):
         self.progress.setFormat("")
         self.progress.hide()
 
+        self.instructions = QLabel(self)
+        self.instructions.setGeometry(40, 170, 216, 25)
+        self.instructions.setText(lang.instructions)
+        self.instructions.setStyleSheet(stylesheets.message_label)
+        self.instructions.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+
         self.btn_get_files = QPushButton(lang.load_files, self)
         self.btn_get_files.move((self.width/2)-70, 75)
         self.btn_get_files.setStyleSheet(stylesheets.btn_style)
@@ -232,6 +238,7 @@ class PDFCApp(QWidget):
         self.start_converting_process()
 
     def start_converting_process(self):
+        self.instructions.hide()
         self.progress.show()
         self.reset_process_values()
 
